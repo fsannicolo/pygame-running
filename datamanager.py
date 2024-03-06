@@ -13,8 +13,8 @@ class DataManager:
     def load(self, default=0):
         
         # controllo se la cartella esiste
-        if not os.path.isdir('savedata'):
-            os.mkdir('savedata')
+        if not os.path.isdir(self.filepath):
+            os.mkdir(self.filepath)
         
         # controllo se il file esiste
         if os.path.exists(self.filepath+'/'+self.filename):
