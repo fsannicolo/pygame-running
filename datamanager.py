@@ -11,7 +11,12 @@ class DataManager:
             pickle.dump(data, f) 
         
     def load(self, default=0):
-        # se il file esiste
+        
+        # controllo se la cartella esiste
+        if not os.path.isdir('savedata'):
+            os.mkdir('savedata')
+        
+        # controllo se il file esiste
         if os.path.exists(self.filepath+'/'+self.filename):
             with open(self.filepath+'/'+self.filename, 'rb') as f:
                 data = pickle.load(f) 
