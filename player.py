@@ -8,9 +8,12 @@ class Player(Sprite):   # ereditato
         super().__init__()
         walk_1 = pygame.image.load('graphics/player/player_walk_1.png').convert_alpha()
         walk_2 = pygame.image.load('graphics/player/player_walk_2.png').convert_alpha()
+        self.walk = [walk_1, walk_2]
+        self.jump = pygame.image.load('graphics/player/jump.png').convert_alpha()
+        self.index = 0
         
         # sprite del giocatore
-        self.image = walk_1 
+        self.image = self.walk[self.index]
         
         # hitbox
         self.rect = self.image.get_rect(midbottom = (80, 300))
@@ -31,6 +34,18 @@ class Player(Sprite):   # ereditato
         if self.rect.bottom > 300:
             self.rect.bottom = 300
     
+    def animate(self):
+        # se salta
+        if self.rect.bottom < 300:
+            self.image = self.jump
+        # se corre
+        else:
+            self.index += 0.1
+            if self.index >= 2:
+                self.index = 0
+            self.image = self.walk[int(self.index)]
+    
     def update(self):
         self.input()
         self.apply_gravity()
+        self.animate()

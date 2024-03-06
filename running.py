@@ -2,12 +2,18 @@ import pygame
 from random import randint, choice 
 from player import Player
 from mob import Mob
+from datamanager import DataManager
 
 def update_score() -> int:
     current_score = (pygame.time.get_ticks() - start_time) // 100
     score_text = font.render(f'Punti: {current_score}', False, (64,64,64)) 
-    score_rect = score_text.get_rect(center = (400, 50)) 
+    score_rect = score_text.get_rect(midleft = (150, 50))
+    
+    record_surface = font.render(f'Record: {record}', False, (64,64,64))
+    record_rect = record_surface.get_rect(midright = (650, 50))
+    
     screen.blit(score_text, score_rect) 
+    screen.blit(record_surface, record_rect)
     
     return current_score
 
@@ -34,9 +40,13 @@ clock = pygame.time.Clock()
 # controlla se sono in gioco o nei menu
 game_active = False 
 
-# gestione del punteggio
-score = 0
 start_time = 0
+
+# gestione del punteggio e caricamento record
+save_manager = DataManager('savedata', 'record.dat') 
+score = 0
+record = save_manager.load() 
+print(f'Record caricato: {record}') 
 
 # carico il font (e specifico la dimensione)
 font = pygame.font.Font('font/Pixeltype.ttf', 50)
@@ -64,7 +74,7 @@ player = pygame.sprite.GroupSingle()
 player.add(Player())    # istanza del giocatore aggiunta agli sprite
 
 mobs = pygame.sprite.Group()
-mobs.add(Mob())         
+mobs.add(Mob('snail'))         
 
 # logica dello spawn (23 eventi base, i restanti sono per l'utente)
 spawn_timer = pygame.USEREVENT + 1
@@ -83,7 +93,8 @@ while run:
         if game_active:
             # controllo se è "scaduto" il timer
             if event.type == spawn_timer:
-                mobs.add(Mob()) 
+                mobtype = choice(['fly','snail','snail','snail'])
+                mobs.add(Mob(mobtype)) 
                
         # se sono nel menu, riavvio    
         else:
@@ -116,14 +127,20 @@ while run:
         # mostrare punteggio
         score_message = font.render(f'Il tuo punteggio: {score}', False, (111,196,169))
         score_rect = score_message.get_rect(center = (400, 330)) 
-           
-        
+               
         if score == 0:
-            screen.blit(game_name, game_name_rect)
+            # schermata principale
             screen.blit(game_message, game_message_rect)
+            screen.blit(game_name, game_name_rect)
         else:
+            # schermata game over
             screen.blit(gameover_message, gameover_message_rect)
             screen.blit(score_message, score_rect)
+            # se ho battuto il record, lo salvo
+            if score > record:
+                record = score
+                save_manager.save(record)
+                print(f'Nuovo record: {record}')
     
     # disegno del prossimo frame
     pygame.display.update()
